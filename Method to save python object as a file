@@ -33,5 +33,8 @@ import pickle
 
 with open("C:\\Users\\tongt\\PycharmProjects\\Melon\\playlist_name_list.p", "rb") as playlist_name_list:
     playlist = pickle.load(playlist_name_list)
+    
+    
+#https://docs.python.org/ko/3/library/pickle.html : python pickle document
 
 print(playlist)
