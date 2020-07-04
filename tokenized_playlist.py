@@ -1,3 +1,4 @@
+#More information about Tokenization with SentencePiece: https://donghwa-kim.github.io/SPM.html
 import sentencepiece as spm
 import pickle
 
@@ -106,5 +107,3 @@ tokenized_playlist_id.close()
 with open("C:\\Users\\tongt\\PycharmProjects\\Melon\\data\\tokenized_playlist_str.p", "wb") as tokenized_playlist_str:
     pickle.dump(tokens, tokenized_playlist_str)
 tokenized_playlist_str.close()
-
-
