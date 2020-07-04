@@ -13,6 +13,7 @@ templates= '--input={} \
 --character_coverage={} \
 --model_type={}'
 
+#소설 파일로 학습
 train_input_file = "C:\\Users\\tongt\\PycharmProjects\\Melon\\data\\4BE00006.txt"
 pad_id=0  #<pad> token을 0으로 설정
 vocab_size = 770 # vocab 사이즈
