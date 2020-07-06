@@ -18,8 +18,6 @@ for i in range(len(train)):
 token = Tokenizer()
 token.fit_on_texts(tag_basket)
 
-y = 0
-
 for i in range(len(train)):
     x = token.texts_to_sequences(train[i]['tags'])
     padded_x = pad_sequences(x, 11)
