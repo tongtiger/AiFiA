@@ -111,4 +111,15 @@ for i in range(3989+1):
 
 train_dataframe_0_3990 = pd.DataFrame(train_data_0_3990)
 
+#genre 안에서 알파벳 제외
+
+value = train_dataframe_0_3990.values
+
+for i in range(len(value[:, 1])):
+        for j in range(len(value[:, 1][i])):
+                value[:, 1][i][j] = value[:, 1][i][j][2:5+1]
+
+
+#데이터 프레임 csv 파일로 저장
+
 train_dataframe_0_3990.to_csv("data\\train_dataframe_0_3900.csv", encoding='euc_kr')
