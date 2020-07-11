@@ -88,7 +88,7 @@ with open("data\\song_meta_0_3990.json", "w") as song_meta_0_3990_json:
     
     
 
-#id-장르-멜스펙트로그램을 속성으로 가지고, 태그를 클래스로 가지는 데이터 프레임 제작
+#id-장르-멜스펙트로그램을 속성으로 가지고, 태그를 클래스로 가지는 데이터 프레임 제작(시도1, 잘못 작성한 코드)
 
 song_meta_0_3990 = json.load(open('data\\song_meta_0_3990.json'))
 
@@ -121,5 +121,58 @@ for i in range(len(value[:, 1])):
 
 
 #데이터 프레임 csv 파일로 저장
+
+train_dataframe_0_3990.to_csv("data\\train_dataframe_0_3900.csv", encoding='euc_kr')
+
+
+
+
+
+# id-장르-멜스펙트로그램을 속성으로 가지고, 태그를 클래스로 가지는 데이터 프레임 제작(원래 의도대로 제대로 작성한 코드)
+
+song_meta_0_3990 = json.load(open('data\\song_meta_0_3990.json'))
+
+with open("data\\music_tags_0_3990.dic", 'rb') as music_tags_0_3990:
+    music_tags_0_3990 = pickle.load(music_tags_0_3990)
+
+
+with open("data\song_meldata_0_3990.list", 'rb') as song_meldata_0_3990:
+    song_meldata_0_3990 = pickle.load(song_meldata_0_3990)
+
+train_data_0_3990 = {"id": [], "genre": [], "melspectrogram": []}
+
+with open('tag_name_list.p', 'rb') as tags:
+    tags = pickle.load(tags)
+
+for i in range(len(tags)):
+    train_data_0_3990[tags[i]] = []
+    for j in range(3417):
+        train_data_0_3990[tags[i]].append(0)
+
+k = -1
+
+for i in range(3989 + 1):
+    if i not in music_tags_0_3990:
+        pass
+    else:
+        k += 1
+        train_data_0_3990['id'].append(song_meta_0_3990[i]['id'])
+        train_data_0_3990['genre'].append(song_meta_0_3990[i]['song_gn_gnr_basket'])
+        train_data_0_3990['melspectrogram'].append(song_meldata_0_3990[i])
+        for j in range(len(music_tags_0_3990[i])):
+            train_data_0_3990[music_tags_0_3990[i][j]][k] = 1
+
+train_dataframe_0_3990 = pd.DataFrame(train_data_0_3990)
+
+# genre 안에서 알파벳 제외
+
+value = train_dataframe_0_3990.values
+
+for i in range(len(value[:, 1])):
+    for j in range(len(value[:, 1][i])):
+        value[:, 1][i][j] = value[:, 1][i][j][2:5 + 1]
+
+
+# 데이터 프레임 csv 파일로 저장
 
 train_dataframe_0_3990.to_csv("data\\train_dataframe_0_3900.csv", encoding='euc_kr')
