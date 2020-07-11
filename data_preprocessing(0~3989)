@@ -1,0 +1,79 @@
+import numpy as np
+import pickle
+import json
+
+#멜스펙트로그램의 1/48 추출
+song_data = []
+
+for i in range(999+1):
+        song= np.load("data\\arena_mel_0\\arena_mel\\0\\{}.npy".format(i))
+        song = song[1, ]
+        song_data.append(song)
+
+for i in range(1000,1999+1):
+        song= np.load("data\\arena_mel_0\\arena_mel\\1\\{}.npy".format(i))
+        song = song[1, ]
+        song_data.append(song)
+
+for i in range(2000,2999+1):
+        song= np.load("data\\arena_mel_0\\arena_mel\\2\\{}.npy".format(i))
+        song = song[1, ]
+        song_data.append(song)
+
+for i in range(3000,3989+1):
+        song= np.load("data\\arena_mel_0\\arena_mel\\3\\{}.npy".format(i))
+        song = song[1, ]
+        song_data.append(song)
+
+
+with open("data\\song_meldata_0_3990.list", "wb") as song_meldata:
+        pickle.dump(song_data, song_meldata)
+
+song_meldata.close()
+
+
+
+
+
+#음악 Id가 3989이하인 노래들에 대한 Id-태그 관계
+with open("data\\song_data_mel.list", "rb") as song_data_mel:
+        song_data = pickle.load(song_data_mel)
+
+with open("data\\train.json", 'r', encoding='UTF8') as train_data:
+        train_data = json.load(train_data)
+
+#음악 ID-태그 관계
+music_with_tags_3990 = {}
+
+for i in range(len(train_data)):
+    for j in range(len(train_data[i]['songs'])):
+        if train_data[i]['songs'][j] <= 3989:
+                if train_data[i]['songs'][j] in music_with_tags_3990:
+                    for k in range(len(train_data[i]['tags'])):
+                        music_with_tags_3990[train_data[i]['songs'][j]].append(train_data[i]['tags'][k])
+                else:
+                    music_with_tags_3990[train_data[i]['songs'][j]] = []
+                    for k in range(len(train_data[i]['tags'])):
+                        music_with_tags_3990[train_data[i]['songs'][j]].append(train_data[i]['tags'][k])
+
+print(music_with_tags_3990)
+print("\n")
+print(len(list(music_with_tags_3990.keys())))
+
+with open("data\\music_tags_0_3990.dic", "wb") as music_tags_0_3990:
+        pickle.dump(music_with_tags_3990, music_tags_0_3990)
+
+music_tags_0_3990.close()
+
+#song_meta 데이터 중 ID 3989 이하인 노래들의 정보
+
+song_meta = json.load(open("data\\song_meta.json", "rb"))
+
+song_meta_0_3990 = []
+
+for i in range(3989+1):
+    song_meta_0_3990.append(song_meta[i])
+
+with open("data\\song_meta_0_3990.json", "w") as song_meta_0_3990_json:
+    json.dump(song_meta_0_3990, song_meta_0_3990_json)
+
