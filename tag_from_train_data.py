@@ -1,5 +1,5 @@
 import json
-import pickle
+# import pickle
 import gzip
 
 with open('DataSet/train.json', encoding='UTF8') as train_data:
@@ -8,9 +8,12 @@ with open('DataSet/train.json', encoding='UTF8') as train_data:
 tag_list = []
 
 for i in range(len(train)):
-    tag_list.append(train[i]["tags"])
+    if len(train[i]["tags"]) == 1:
+        pass
+    else:
+        tag_list.append(train[i]["tags"])
 
-# print(tag_list)
+print(tag_list)
 
 '''
 # save
