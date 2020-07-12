@@ -1,0 +1,148 @@
+import numpy as np
+import pandas as pd
+import pickle
+import json
+
+# 멜스펙트로그램의 1/48 추출
+
+'''song_data = []
+
+for i in range(6000, 6999 + 1):
+    song = np.load("data\\arena_mel_0\\arena_mel\\6\\{}.npy".format(i))
+    song = song[1,]
+    song_data.append(song)
+
+for i in range(7000, 7999 + 1):
+    song = np.load("data\\arena_mel_0\\arena_mel\\7\\{}.npy".format(i))
+    song = song[1,]
+    song_data.append(song)
+
+for i in range(8000, 8999 + 1):
+    song = np.load("data\\arena_mel_0\\arena_mel\\8\\{}.npy".format(i))
+    song = song[1,]
+    song_data.append(song)
+
+for i in range(9000, 9999 + 1):
+    song = np.load("data\\arena_mel_0\\arena_mel\\9\\{}.npy".format(i))
+    song = song[1,]
+    song_data.append(song)
+
+for i in range(10000, 10999 + 1):
+    song = np.load("data\\arena_mel_0\\arena_mel\\10\\{}.npy".format(i))
+    song = song[1,]
+    song_data.append(song)
+
+for i in range(11000, 11999 + 1):
+    song = np.load("data\\arena_mel_0\\arena_mel\\11\\{}.npy".format(i))
+    song = song[1,]
+    song_data.append(song)
+
+with open("data\\song_meldata_6000_11999.list", "wb") as song_meldata:
+    pickle.dump(song_data, song_meldata)
+
+song_meldata.close()
+
+
+# 음악 Id가 3989이하인 노래들에 대한 Id-태그 관계
+
+with open("data\\song_data_mel.list", "rb") as song_data_mel:
+    song_data = pickle.load(song_data_mel)
+
+with open("data\\train.json", 'r', encoding='UTF8') as train_data:
+    train_data = json.load(train_data)
+
+# 음악 ID-태그 관계
+music_with_tags_6000_11999 = {}
+
+for i in range(len(train_data)):
+    for j in range(len(train_data[i]['songs'])):
+        if 6000 <= train_data[i]['songs'][j] <= 11999:
+            if train_data[i]['songs'][j] in music_with_tags_6000_11999:
+                for k in range(len(train_data[i]['tags'])):
+                    music_with_tags_6000_11999[train_data[i]['songs'][j]].append(train_data[i]['tags'][k])
+            else:
+                music_with_tags_6000_11999[train_data[i]['songs'][j]] = []
+                for k in range(len(train_data[i]['tags'])):
+                    music_with_tags_6000_11999[train_data[i]['songs'][j]].append(train_data[i]['tags'][k])
+
+print(music_with_tags_6000_11999)
+print("\n")
+print(len(list(music_with_tags_6000_11999.keys()))) #5216
+
+with open("data\\music_tags_6000_11999.dic", "wb") as music_tags_6000_11999:
+    pickle.dump(music_with_tags_6000_11999, music_tags_6000_11999)
+
+music_tags_6000_11999.close()'''
+
+# song_meta 데이터 중 ID 3989 이하인 노래들의 정보
+
+song_meta = json.load(open("data\\song_meta.json", "rb"))
+
+song_meta_6000_11999 = []
+
+for i in range(6000, 11999+1):
+    song_meta_6000_11999.append(song_meta[i])
+
+with open("data\\song_meta_6000_11999.json", "w") as song_meta_6000_11999_json:
+    json.dump(song_meta_6000_11999, song_meta_6000_11999_json)
+
+# id-장르-멜스펙트로그램을 속성으로 가지고, 태그를 클래스로 가지는 데이터 프레임 제작
+
+song_meta_6000_11999 = json.load(open('data\\song_meta_6000_11999.json'))
+
+
+
+
+with open("data\\music_tags_6000_11999.dic", 'rb') as music_tags_6000_11999:
+    music_tags_6000_11999 = pickle.load(music_tags_6000_11999)
+
+
+with open("data\song_meldata_6000_11999.list", 'rb') as song_meldata_6000_11999:
+    song_meldata_6000_11999 = pickle.load(song_meldata_6000_11999)
+
+
+
+
+
+
+train_data_6000_11999 = {"id": [], "genre": [], "melspectrogram": []}
+
+with open('tag_name_list.p', 'rb') as tags:
+    tags = pickle.load(tags)
+
+for i in range(len(tags)):
+    train_data_6000_11999[tags[i]] = []
+    for j in range(5216):
+        train_data_6000_11999[tags[i]].append(0)
+
+print("딕셔너리 제작 완료")
+k = -1
+
+
+for i in range(5999+1):
+    z = i + 6000
+    if z not in music_tags_6000_11999:
+        pass
+    else:
+        k += 1
+        train_data_6000_11999['id'].append(song_meta_6000_11999[i]['id'])
+        train_data_6000_11999['genre'].append(song_meta_6000_11999[i]['song_gn_gnr_basket'])
+        train_data_6000_11999['melspectrogram'].append(song_meldata_6000_11999[i])
+        for j in range(len(music_tags_6000_11999[song_meta_6000_11999[i]['id']])):
+            train_data_6000_11999[music_tags_6000_11999[song_meta_6000_11999[i]['id']][j]][k] = 1
+
+train_dataframe_6000_11999 = pd.DataFrame(train_data_6000_11999)
+print("데이터프레임 제작 완료")
+
+# genre 안에서 알파벳 제외
+
+value = train_dataframe_6000_11999.values
+
+for i in range(len(value[:, 1])):
+    for j in range(len(value[:, 1][i])):
+        value[:, 1][i][j] = value[:, 1][i][j][2:5 + 1]
+
+
+# 데이터 프레임 csv 파일로 저장
+
+train_dataframe_6000_11999.to_csv("data\\train_dataframe_6000_11999.csv", encoding='euc_kr')
