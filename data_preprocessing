@@ -3,6 +3,8 @@ import pandas as pd
 import pickle
 import json
 
+#a와 b_list만 조작하면 모든 멜스펙트로그램파일을 처리하여 학습에 필요한 csv 파일을 제작할 수 있음
+
 b_list = [0, 1, 2, 3, 4, 5, 6, 7, 8]    # list 자료형, 'arena_mel_a\\arena_mel\\에서 폴더 9개 선택,
                                         # b_list는 연속된 숫자 9개를 채워넣으면 된다.(데이터 9000개)
                                         # 전체 코드에서 자주 사용되는 변수
@@ -63,7 +65,8 @@ print("id_list 파일 저장 완료")
 with open("data\id_{}_{}.list".format(b_list[0]*1000,(b_list[8]+1)*1000-1), "rb") as id_list:
     id_list = pickle.load(id_list)
 
-with open("music_tag_dic.p", "rb") as music_tag_dic:
+#기존에 올렸던 music_tag_dic.p에 중복이 있어서 새로 다시 올린 코드가 있으니, 해당 코드로 music_tag_dic.p 사용해야함.
+with open("music_tag_dic.p", "rb") as music_tag_dic:        
     music_tag_dic = pickle.load(music_tag_dic)
 
 #id_list 내 곡들을 Key, []를 요소로 가지는 딕셔너리 생성
