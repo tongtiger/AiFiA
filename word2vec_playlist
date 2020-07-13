@@ -1,0 +1,24 @@
+import pickle
+from gensim.models import word2vec
+
+#playlist token
+with open("tokenized_playlist_str.p", "rb") as tok_pl:
+  playlist = pickle.load(tok_pl)
+
+# playlist token 평균 개수 (word2vec의 window 매겨변수의 적정값을 찾기 위함)
+count=0
+for i in range(len(playlist)):
+  count+=len(playlist[i])
+avg=count/len(playlist)
+print(avg)
+
+# word2vec model
+model=word2vec.Word2Vec(playlist,size=256,window=5, min_count=10, sg=1)
+model.save("pl.model")
+print("ok")
+
+# model 저장
+model=word2vec.Word2Vec.load("pl.model")
+
+# 락과 가장 가까운 단어 10개 출력
+print(model.most_similar(positive=["락"],topn=10))
