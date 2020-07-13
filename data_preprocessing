@@ -119,7 +119,7 @@ for id in id_list:
     for i in range(len(song_meta[id]['song_gn_dtl_gnr_basket'])):                                          #genre에서 알파벳 제외
         song_meta[id]['song_gn_dtl_gnr_basket'][i] = song_meta[id]['song_gn_dtl_gnr_basket'][i][2:5+1]     
     data_frame['genre'].append(song_meta[id]['song_gn_dtl_gnr_basket'])
-    data_frame['melspectrogram'].append(mini_meldata[k])
+    data_frame['melspectrogram'].append(mini_meldata[id-b_list[0]*1000]])
     for tag in id_tag_dic[id]:                                                                             #곡에 포함된 태그 중, 특정 조건을 충족하는
         if tag in tags:                                                                                    #태그에 대해서만 작업 진행
             data_frame[tag][k] += 1
