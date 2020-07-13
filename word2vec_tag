@@ -1,0 +1,26 @@
+import pickle
+from gensim.models import word2vec
+import jason
+
+# train data에서 tag 정리
+with open('train.json',encoding='UTF8') as train_data:
+	train = json.load(train_data)
+ 
+tag_token = []
+ for i in range(len(train)):
+     tag_token.append(train[i]['tags'])
+
+# tag 평균 개수
+tag_num=0
+for i in range(len(tag_token)):
+  tag_num+=len(tag_token[i])
+tag_avg=tag_num/len(tag_token)
+print(tag_avg)
+
+# tag model
+tag_model=word2vec.Word2Vec(tag_token,size=512,window=3, min_count=3, sg=1)
+tag_model.save("tag.model")
+
+# model에서 '락'과 비슷한 단어 10개 출력
+tag_model=word2vec.Word2Vec.load("tag.model")
+print(tag_model.most_similar(positive=['락'],topn=10))
