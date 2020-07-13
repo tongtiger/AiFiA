@@ -1,0 +1,83 @@
+import json
+import pickle
+
+train= json.load(open("data\\train.json", "rb"))
+
+tag_basket = []
+
+for data in train:
+    for tag in data['tags']:
+        if tag not in tag_basket:
+            tag_basket.append(tag)
+        else:
+            pass
+print(len(tag_basket))
+
+tag_freq = {}
+
+for tag in tag_basket:
+    tag_freq[tag] = 0
+
+with open("music_tag_dic.p", "rb") as f:
+    music_tag = pickle.load(f)
+
+for key, tags in music_tag.items():
+    for tag in tags:
+        tag_freq[tag] += 1
+
+tag_freq_10 = []
+tag_freq_lessthan_10 = []
+
+for tag, freq in tag_freq.items():
+    if freq >= 10:
+        tag_freq_10.append(tag)
+    else:
+        tag_freq_lessthan_10.append(tag)
+
+print(len(tag_freq_10))
+print(len(tag_freq_lessthan_10))
+
+with open("data\\tag_freq_10.list", "wb") as f:
+    pickle.dump(tag_freq_10, f)
+with open("data\\tag_freq_lessthan_10.list", "wb") as f:
+    pickle.dump(tag_freq_lessthan_10, f)
+    
+import pickle
+from gensim.models import word2vec
+
+# model 저장
+model=word2vec.Word2Vec.load("pl.model")
+
+
+with open("data\\tag_freq_10.list", "rb") as f:
+  tag_freq_10 = pickle.load(f)
+with open("data\\tag_freq_lessthan_10.list", "rb") as f:
+  tag_freq_lessthan_10 = pickle.load(f)
+
+with open("tag_name_list.p", "rb") as f:
+  tags = pickle.load(f)
+
+
+#태그 집합 딕셔너리 생성
+tag_party = {}
+
+#기준 태그(빈도수가 일정 수 이상인 태그)를 키로 설정
+for tag in tag_freq_10:
+  tag_party[tag] = []
+
+#기준 태그가 아닌 태그들을 word2vec 모델에 대입하여 가까운 단어 리스트 생성
+#리스트 내에서 거리가 가장 가까운 기준 태그 탐색 후, 해당 기준 태그에 값으로 할당
+for tag in tag_freq_lessthan_10:
+  tag_adjacent = model.most_similar(positive=[tag],topn=50)
+  for adjacent in tag_adjacent:
+    if adjacent in tag_party:
+      tag_party[adjacent].append(tag)
+      break
+    else:
+      pass
+
+with open("tag_party_test.dic", "wb") as f:
+  pickle.dump(tag_party, f)    
+    
+    
+  
