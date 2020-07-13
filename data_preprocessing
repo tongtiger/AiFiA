@@ -106,23 +106,21 @@ with open("data\\mini_meldata_{}_{}.list".format(b_list[0]*1000,(b_list[8]+1)*10
 with open("data\\id_tag_{}_{}.dic".format(b_list[0]*1000,(b_list[8]+1)*1000-1), "rb") as f:
     id_tag_dic = pickle.load(f)
 
-#행 인덱스를 세어줄 변수
+#행 인덱스를 세주는 변수
 k = 0
 
 for id in id_list:
     data_frame['id'].append(id)
-    genre = []                                                          #genre 안에서 알파벳을 제거하기 위해 문자열 처리
-    for i in range(len(song_meta[id]['song_gn_dtl_gnr_basket'])):
-        genre.append(song_meta[id]['song_gn_dtl_gnr_basket'][i][2:5+1])
-    data_frame['genre'].append(genre)
-    genre.clear()
+    for i in range(len(song_meta[id]['song_gn_dtl_gnr_basket'])):                                          #genre에서 알파벳 제외
+        song_meta[id]['song_gn_dtl_gnr_basket'][i] = song_meta[id]['song_gn_dtl_gnr_basket'][i][2:5+1]     
+    data_frame['genre'].append(song_meta[id]['song_gn_dtl_gnr_basket'])
     data_frame['melspectrogram'].append(mini_meldata[k])
-    for tag in id_tag_dic[id]:                                          #곡에 포함된 태그 중, 특정 조건을 충족하는
-        if tag in tags:                                                 #태그에 대해서만 작업 진행
+    for tag in id_tag_dic[id]:                                                                             #곡에 포함된 태그 중, 특정 조건을 충족하는
+        if tag in tags:                                                                                    #태그에 대해서만 작업 진행
             data_frame[tag][k] += 1
         else:
             pass
-    k += 1                                                              #행 인덱스 카운트
+    k += 1                                                                                                 #행 인덱스 카운트
 
 #딕셔너리를 판다스 데이터 프레임으로 변환 및 csv 파일로 저장.
 pandas_data_frame = pd.DataFrame(data_frame)
