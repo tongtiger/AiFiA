@@ -1,0 +1,132 @@
+import numpy as np
+import pandas as pd
+import pickle
+import json
+
+b_list = [0, 1, 2, 3, 4, 5, 6, 7, 8]    # list 자료형, 'arena_mel_a\\arena_mel\\에서 폴더 9개 선택,
+                                        # b_list는 연속된 숫자 9개를 채워넣으면 된다.(데이터 9000개)
+                                        # 전체 코드에서 자주 사용되는 변수
+
+#멜스펙트로그램에서 일부분을 추출하여 파일로 저장
+
+a = 0    #변수, arena_mel_??? 파일 선택 ex) a= 1, arena_mel_1 파일 선택
+
+mini_meldata = []   #list 자료형, 멜스펙트로그램 데이터 중 일부를 추출한 데이터
+
+for i in range(len(b_list)):
+    for c in range(b_list[i]*1000, (b_list[i]+1)*1000):
+        file = np.load("data\\arena_mel_{}\\arena_mel\\{}\\{}.npy".format(a, b_list[i], c)) #npy 파일 로드
+        file = file[0, ]    #멜스펙트로그램(Numpy array) 중에서 추출할 부분 선택
+        mini_meldata.append(file)
+
+#pickle을 이용하여 data 파일 내에 mini_meldata_???_???.list로 저장. format으로 노래 id 구간을 표현해줌.
+with open("data\\mini_meldata_{}_{}.list".format(b_list[0]*1000, (b_list[8]+1)*1000 - 1), "wb") as f:
+    pickle.dump(mini_meldata, f)
+
+print("멜스펙트로그램 파일 저장 완료")
+
+
+
+
+
+#멜스펙트로그램으로 추출한 구간에서 train.json에 등장하는 곡 판별
+
+train = json.load(open("data\\train.json", "rb"))
+
+id_list = []  #list 자료형, b_list에서 선택한 구간 내에 노래들의 id 모음
+
+#반복문, 조건문 이용하여 선택한 구간 내에서 train.json에 등장하는 곡 찾기
+for i in range(len(train)):
+    for song in train[i]['songs']:
+        if b_list[0]*1000 <= song < (b_list[8]+1)*1000:
+            if song not in id_list:
+                id_list.append(song)
+            else:
+                pass
+        else:
+            pass
+
+id_list.sort()  #오름차순으로 정리
+
+#pickle을 이용하여 data 파일 내에 id_list_???_???.list로 저장. format으로 노래 id 구간을 표현해줌.
+with open("data\\id_{}_{}.list".format(b_list[0]*1000,(b_list[8]+1)*1000-1), "wb") as f:
+    pickle.dump(id_list, f)
+
+print("id_list 파일 저장 완료")
+
+
+
+
+
+#id_list 내 곡에 속한 태그 리스트를 딕셔너리로 정리하기
+
+with open("data\id_{}_{}.list".format(b_list[0]*1000,(b_list[8]+1)*1000-1), "rb") as id_list:
+    id_list = pickle.load(id_list)
+
+with open("music_tag_dic.p", "rb") as music_tag_dic:
+    music_tag_dic = pickle.load(music_tag_dic)
+
+#id_list 내 곡들을 Key, []를 요소로 가지는 딕셔너리 생성
+id_tag_dic = {}
+
+for id in id_list:
+    id_tag_dic[id] = music_tag_dic[id]
+
+#pickle을 이용하여 data 파일 내에 id_tag_???_???.dic로 저장. format으로 노래 id 구간을 표현해줌.
+with open("data\\id_tag_{}_{}.dic".format(b_list[0]*1000,(b_list[8]+1)*1000-1), "wb") as f:
+    pickle.dump(id_tag_dic, f)
+
+print("id_tag 파일 저장 완료")
+
+
+
+
+
+#id, genre, melspectrogram, tag(클래스)로 이루어진 pandas 데이터 프레임 제작
+
+#pandas 데이터 프레임으로 변환할 딕셔너리
+data_frame = {'id': [] , 'genre': [] , "melspectrogram": []}
+
+#태그의 경우, 원래 태그 간 유사도를 고려한 것을 가져와야하지만, 일단 빈도수가 10 이상인것으로 들고 오겠음
+#만약 유사도 고려한 파일을 제작하면, 이 부분만 바꾸면 됨.
+with open("data\\tag_10.list", "rb") as f:
+    tags = pickle.load(f)
+
+#data_frame에 빈도수 10 이상의 태그를 키로 지정해주고, id_list의 길이만큼 0을 넣어준다.
+for tag in tags:
+    data_frame[tag] = []
+    for i in range(len(id_list)):
+        data_frame[tag].append(0)
+
+print("딕셔너리 제작 완료")
+
+song_meta = json.load(open("data\\song_meta.json", "rb"))
+with open("data\\mini_meldata_{}_{}.list".format(b_list[0]*1000,(b_list[8]+1)*1000-1), "rb") as f:
+    mini_meldata = pickle.load(f)
+with open("data\\id_tag_{}_{}.dic".format(b_list[0]*1000,(b_list[8]+1)*1000-1), "rb") as f:
+    id_tag_dic = pickle.load(f)
+
+#행 인덱스를 세어줄 변수
+k = 0
+
+for id in id_list:
+    data_frame['id'].append(id)
+    genre = []                                                          #genre 안에서 알파벳을 제거하기 위해 문자열 처리
+    for i in range(len(song_meta[id]['song_gn_dtl_gnr_basket'])):
+        genre.append(song_meta[id]['song_gn_dtl_gnr_basket'][i][2:5+1])
+    data_frame['genre'].append(genre)
+    genre.clear()
+    data_frame['melspectrogram'].append(mini_meldata[k])
+    for tag in id_tag_dic[id]:                                          #곡에 포함된 태그 중, 특정 조건을 충족하는
+        if tag in tags:                                                 #태그에 대해서만 작업 진행
+            data_frame[tag][k] += 1
+        else:
+            pass
+    k += 1                                                              #행 인덱스 카운트
+
+#딕셔너리를 판다스 데이터 프레임으로 변환 및 csv 파일로 저장.
+pandas_data_frame = pd.DataFrame(data_frame)
+
+pandas_data_frame.to_csv("data\\train_dataframe_{}_{}.csv".format(b_list[0]*1000,(b_list[8]+1)*1000-1), encoding='euc_kr')
+
+print("데이터 프레임 저장 완료")
