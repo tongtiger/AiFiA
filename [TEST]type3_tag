@@ -1,0 +1,60 @@
+from gensim.models import FastText
+import pickle
+import json
+
+
+val_data = json.load(open("data/val.json", "rb"))
+
+with open("tag_name_list.p", "rb") as f:
+    tags = pickle.load(f)
+
+with open("music_tag_dic.p", "rb") as f:
+    music_tag = pickle.load(f)
+
+model = FastText.load("FastText.model")
+
+k = 0
+
+answers = {}
+
+
+for data in val_data:
+    if k < 500:
+        answers[k] = []
+        if data['tags'] != [] and data['songs'] !=[]:
+            basket = []
+            predictions = model.most_similar(positive=[tag for tag in data['tags']], topn=200)
+            for prediction in predictions:
+                if prediction[0] in tags:
+                    basket.append(prediction[0])
+                else:
+                    pass
+            basket_2 = []
+            for song in data['songs']:
+                if song in music_tag:
+                    for tag in music_tag[song]:
+                        if tag not in basket_2:
+                            basket_2.append(tag)
+                        else:
+                            pass
+                else:
+                    pass
+            for element in basket:
+                if element not in basket_2:
+                    basket.remove(element)
+                else:
+                    pass
+            for element in basket:
+                answers[k].append(element)
+        else:
+            pass
+        k += 1
+    else:
+        pass
+
+for answer in answers:
+    if len(answers[answer]) > 10:
+        answers[answer] = answers[answer][ : 9+1]
+
+with open("[TEST]val_extracttag_from_tag+song.json", "w", encoding="UTF8") as f:
+    json.dump(answers, f, ensure_ascii=False)
