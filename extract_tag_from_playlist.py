@@ -42,6 +42,9 @@ with open("tag_name_list.p", "rb") as f:
 #FastText 기본 모델, 기본적으로 Word2Vec과 비슷한 원리로 작동함
 model = FastText(playlist, min_count=1)
 
+#FastText 모델 저장
+model.save("FastText.model")
+
 val_data = json.load(open("data\\val.json", "rb"))
 
 #val 데이터로부터 유추한 태그들(Type2 유형)
