@@ -1,0 +1,104 @@
+import json
+import pickle
+
+results_2 = json.load(open("data/[TEST]results_2.json", "rb"))
+
+with open("data/tag_music_freq.dic", "rb") as f:
+    tag_music_freq = pickle.load(f)
+
+with open("data/music_tag_freq.dic", "rb") as f:
+    music_tag_freq = pickle.load(f)
+
+k = 1
+
+
+#투표
+for answer in results_2:
+    musics = {}
+    for tag in answer['tags']:
+        for song in tag_music_freq[tag]:
+            if song not in musics:
+                musics[song] = 1
+            else:
+                musics[song] += 1
+    answer_songs = []
+    for song, freq in musics.items():
+        if freq >= 10:
+            answer_songs.append(song)
+        else:
+            pass
+    if len(answer_songs) >= 100:
+        answer['songs'].append(answer_songs[:99+1])
+    else:
+        answer_songs.clear()
+        for song, freq in musics.items():
+            if freq >= 9:
+                answer_songs.append(song)
+            else:
+                pass
+        if len(answer_songs) >= 100:
+            answer['songs'].append(answer_songs[:99+1])
+        else:
+            answer_songs.clear()
+            for song, freq in musics.items():
+                if freq >= 8:
+                    answer_songs.append(song)
+                else:
+                    pass
+            if len(answer_songs) >= 100:
+                answer['songs'].append(answer_songs[:99+1])
+            else:
+                answer_songs.clear()
+                for song, freq in musics.items():
+                    if freq >= 7:
+                        answer_songs.append(song)
+                    else:
+                        pass
+                if len(answer_songs) >= 100:
+                    answer['songs'].append(answer_songs[:99+1])
+                else:
+                    answer_songs.clear()
+                    for song, freq in musics.items():
+                        if freq >= 6:
+                            answer_songs.append(song)
+                        else:
+                            pass
+                    if len(answer_songs) >= 100:
+                        answer['songs'].append(answer_songs[:99+1])
+                    else:
+                        answer_songs.clear()
+                        for song, freq in musics.items():
+                            if freq >= 5:
+                                answer_songs.append(song)
+                            else:
+                                pass
+                        if len(answer_songs) >= 100:
+                            answer['songs'].append(answer_songs[:99+1])
+                        else:
+                            answer_songs.clear()
+                            for song, freq in musics.items():
+                                if freq >= 4:
+                                    answer_songs.append(song)
+                                else:
+                                    pass
+                            if len(answer_songs) >= 100:
+                                answer['songs'].append(answer_songs[:99+1])
+                            else:
+                                answer_songs.clear()
+                                for song, freq in musics.items():
+                                    if freq >= 3:
+                                        answer_songs.append(song)
+                                    else:
+                                        pass
+                                if len(answer_songs) >= 100:
+                                    answer['songs'].append(answer_songs[:99+1])
+                                else:
+                                    answer_songs.clear()
+                                    for song, freq in musics.items():
+                                        if freq >= 2:
+                                            answer_songs.append(song)
+                                        else:
+                                            pass
+
+with open("data/[TEST]results_2_2.json", "w", encoding='UTF8') as f:
+    json.dump(results_2, f, ensure_ascii=False)
