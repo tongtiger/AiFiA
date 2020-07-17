@@ -1,0 +1,51 @@
+import json
+from gensim.models import FastText
+import pickle
+
+val_type2= json.load(open("data/val_type2.json", "rb"))
+
+print(len(val_type2))
+
+with open('tag_name_list.p', "rb") as f:
+    tag_list = pickle.load(f)
+
+fasttext = FastText.load("FastText.model")
+
+def type2_presager(topn):
+    predictions = fasttext.most_similar(positive=[word for word in data['plylst_title'].split(" ")], topn=topn)
+    for prediction in predictions:
+        if prediction[0] in tag_list:
+            result['tags'].append(prediction[0])
+        else:
+            pass
+
+results = []
+
+k = 1
+a = 0
+
+for data in val_type2:
+    result = {'id': data['id'], 'songs': [], 'tags': []}
+    type2_presager(topn = 500)
+    if len(result['tags']) > 10:
+        result['tags'] = result['tags'][: 9+1]
+    elif len(result['tags']) < 10:
+        print("{}번째 미충족 분입니다.".format(k), data)
+        type2_presager(topn = 1500)
+        if len(result['tags']) < 10:
+            type2_presager(topn = 4000)
+            print("작동했어요")
+            result['tags'] = result['tags'][:9+1]
+            print(len(result['tags']))
+        else:
+            result['tags'] = result['tags'][: 9+1]
+            print("{}번째 미충족 분 해결했습니다.".format(k))
+        k += 1
+    results.append(result)
+    a += 1
+    if a % 100 ==0:
+        print("{}개 진행했습니다.".format(a))
+
+
+with open("data/[TEST]results_2.json", "w", encoding='UTF8') as f:
+    json.dump(results, f, ensure_ascii=False)
