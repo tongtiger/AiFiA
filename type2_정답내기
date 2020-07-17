@@ -49,3 +49,33 @@ for data in val_type2:
 
 with open("data/[TEST]results_2.json", "w", encoding='UTF8') as f:
     json.dump(results, f, ensure_ascii=False)
+    
+import json
+import pickle
+
+results_2 = json.load(open("data/[TEST]results_2.json", "rb"))
+
+with open("data/tag_music_freq.dic", "rb") as f:
+    tag_music_freq = pickle.load(f)
+
+for answer in results_2:
+    vote = {}
+    for tag in answer['tags']:
+        for music in tag_music_freq[tag]:
+            if music not in vote:
+                vote[music] = 1
+            else:
+                vote[music] += 1
+    voted = sorted(vote.keys(), reverse=True)
+    for i in range(10):
+        answer['songs'].append(voted[i])
+
+with open("data/[TEST]results_2_2.json", "w", encoding='UTF8') as f:
+    json.dump(results_2, f, ensure_ascii=False)
+
+
+
+
+
+
+
