@@ -20,7 +20,8 @@ mini_meldata = []   #list 자료형, 멜스펙트로그램 데이터 중 일부�
 for i in range(len(b_list)):
     for c in range(b_list[i]*1000, (b_list[i]+1)*1000):
         file = np.load("data\\arena_mel_{}\\arena_mel\\{}\\{}.npy".format(a, b_list[i], c)) #npy 파일 로드
-        file = file[42:47+1, ]    #멜스펙트로그램(Numpy array) 중에서 추출할 부분 선택
+        file = file[42:47+1]    # 멜스펙트로그램(Numpy array) 중에서 추출할 부분 선택
+        file = file.tolist()
         mini_meldata.append(file)
 
 #pickle을 이용하여 data 파일 내에 mini_meldata_???_???.list로 저장. format으로 노래 id 구간을 표현해줌.
