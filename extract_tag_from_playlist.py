@@ -59,11 +59,15 @@ for data in val_data:
         #위에서 가져온 단어(recommends) 중 태그만을 playlist_to_tags에 추가
         for recommend in recommends:
             if recommend[0] in tags:
-                for begin_tag in playlist_to_tags[data['plylst_title']] :
-                    sim1, sim2 = diff_2gram(begin_tag, recommend[0])
-                    if sim1 <= 0.5 and sim2 <= 0.5 :
-                        playlist_to_tags[data['plylst_title']].append(recommend)
-                    else : pass
+                if len(playlist_to_tags) ==0:
+                    playlist_to_tags[data['plylst_title']].append(recommend)
+                else: 
+                    for begin_tag in playlist_to_tags[data['plylst_title']] :
+                        sim1, sim2 = diff_2gram(begin_tag, recommend[0])
+                        if sim1 <= 0.5 and sim2 <= 0.5 :
+                            playlist_to_tags[data['plylst_title']].append(recommend)
+                        else : pass
+
             else:
                 pass
     else:
