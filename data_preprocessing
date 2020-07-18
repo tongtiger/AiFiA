@@ -31,7 +31,7 @@ with open("data\\mini_meldata_{}_{}.list".format(b_list[0]*1000, (b_list[8]+1)*1
 print("멜스펙트로그램 파일 저장 완료")
 
 
-
+..
 
 
 #멜스펙트로그램으로 추출한 구간에서 train.json에 등장하는 곡 판별
