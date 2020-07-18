@@ -59,7 +59,7 @@ for data in val_data:
         #위에서 가져온 단어(recommends) 중 태그만을 playlist_to_tags에 추가
         for recommend in recommends:
             if recommend[0] in tags:
-                if len(playlist_to_tags) ==0:
+                if len(playlist_to_tags[data['plylst_title']]) ==0:
                     playlist_to_tags[data['plylst_title']].append(recommend)
                 else: 
                     for begin_tag in playlist_to_tags[data['plylst_title']] :
