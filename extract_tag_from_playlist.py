@@ -59,7 +59,11 @@ for data in val_data:
         #위에서 가져온 단어(recommends) 중 태그만을 playlist_to_tags에 추가
         for recommend in recommends:
             if recommend[0] in tags:
-                playlist_to_tags[data['plylst_title']].append(recommend)
+                for begin_tag in playlist_to_tags[data['plylst_title']] :
+                    sim1, sim2 = diff_2gram(begin_tag, recommend[0])
+                    if sim1 <= 0.5 and sim2 <= 0.5 :
+                        playlist_to_tags[data['plylst_title']].append(recommend)
+                    else : pass
             else:
                 pass
     else:
@@ -79,3 +83,30 @@ with open("[TEST]val_playlist_to_tags.json", "w", encoding='UTF8') as f:
     json.dump(tags, f, ensure_ascii=False)
 
 
+
+def ngram(s, num):
+   res = []
+   letter = 0
+   slen = len(s) - num + 1
+   for i in range(slen):
+        ss = s[i:i + num]
+        res.append(ss)
+   return res
+
+
+def diff_2gram(sa, sb):
+    if len(sa) == 1 or len(sb) == 1:
+        a = ngram(sa, 1)
+        b = ngram(sb, 1)
+    else:
+        a = ngram(sa, 2)
+        b = ngram(sb, 2)
+    r = []
+    count = 0
+    for i in a:
+        for j in b:
+            if i == j:
+                count += 1
+                r.append(i)
+
+    return count / len(a), count/len(b)
