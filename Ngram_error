@@ -1,0 +1,200 @@
+from gensim.models import FastText
+import pickle
+import json
+from tqdm import tqdm
+
+#필요한 자료 및 모델
+val_data = json.load(open("data/val_type2.json", "rb"))   #맞춰야 하는 데이터
+
+with open("tag_name_list.p", "rb") as f:
+    tag_list = pickle.load(f)   #태그 리스트
+
+with open("music_tag_dic.p", "rb") as f:
+    music_tag = pickle.load(f)  #태그를 음악에 따라 묶은 것
+
+with open("data/tag_music_freq.dic", "rb") as f:
+    tag_music_freq = pickle.load(f)
+
+fasttext = FastText.load("FastText.model")
+
+
+#예상 내용이 들어가는 리스트, 일단 태그 10개, 곡 100개 만족하는거는 나중에 따로 처리해주고, 일단 채워넣는 단계
+results = []
+
+
+
+
+#def type1_presager(data, ...):
+
+def type2_presager(topn):
+    predictions = fasttext.most_similar(positive=[word for word in data['plylst_title'].split(" ")], topn=topn)
+    while len(result['tags']) < 10:
+        for prediction in predictions:
+            if prediction[0] in tag_list:
+                result['tags'].append(prediction[0])
+            else:
+                pass
+
+def type2_presager_ngram(topn):
+    predictions = fasttext.most_similar(positive=[word for word in data['plylst_title'].split(" ")], topn=topn)
+    #print("{}번째 prediction 탐색 완료".format(k))
+
+    for prediction in predictions:
+        if prediction[0] in tag_list:
+            if len(result['tags']) == 0:
+                result['tags'].append(prediction[0])
+            else:
+                for begin_tag in result['tags']:
+                    sim1, sim2 = diff_2gram(begin_tag, prediction[0])
+                    if sim1 <= 0.5 and sim2 <= 0.5:
+                        result['tags'].append(prediction[0])
+                    else:
+                        pass
+        else:
+            pass
+
+def type2_vote(frequency):
+    for song, freq in musics.items():
+        if freq == frequency:
+            answer_songs.append(song)
+        else:
+            pass
+
+def type2_submit_answer():
+    for answer_song in answer_songs[:99 + 1]:
+        result['songs'].append(answer_song)
+
+def ngram(s, num):
+   res = []
+   letter = 0
+   slen = len(s) - num + 1
+   for i in range(slen):
+        ss = s[i:i + num]
+        res.append(ss)
+   return res
+
+
+def diff_2gram(sa, sb):
+    if len(sa) == 1 or len(sb) == 1:
+        a = ngram(sa, 1)
+        b = ngram(sb, 1)
+    else:
+        a = ngram(sa, 2)
+        b = ngram(sb, 2)
+    r = []
+    count = 0
+    for i in a:
+        for j in b:
+            if i == j:
+                count += 1
+                r.append(i)
+
+    return count / len(a), count/len(b)
+
+
+k = 1
+
+for data in tqdm(val_data):
+    result = {'id': data['id'], 'songs': [], 'tags': []}    #results 안에 들어갈 데이터(딕셔너리)
+
+    #type2 problem
+    if data['tags'] == data['songs'] == []:
+        type2_presager_ngram(topn = 20)
+        #print("{}번째 ngram_20 계산완료".format(k))
+        if len(result['tags']) >= 10:
+            result['tags'] = result['tags'][:9+1]
+        else:
+            result['tags'].clear()
+            #print("{}번째 플레이리스트 ngram_20 실패 ".format(k))
+            type2_presager_ngram(topn=30)
+            #print("{}번째 ngram_30 계산완료".format(k))
+            if len(result['tags']) >= 10:
+                result['tags'] = result['tags'][:9 + 1]
+            else:
+                result['tags'].clear()
+                # print("{}번째 플레이리스트 ngram_30 실패 ".format(k))
+                type2_presager_ngram(topn=40)
+                # print("{}번째 ngram_50 계산완료".format(k))
+                if len(result['tags']) >= 10:
+                    result['tags'] = result['tags'][: 9 + 1]
+                else:
+                    result['tags'].clear()
+                    #print("{}번째 플레이리스트 ngram_30 실패 ".format(k))
+                    type2_presager_ngram(topn = 50)
+                    #print("{}번째 ngram_50 계산완료".format(k))
+                    if len(result['tags']) >= 10:
+                        result['tags'] = result['tags'][: 9 + 1]
+                    else:
+                        #print("{}번째 플레이리스트 ngram_50 실패".format(k))
+                        result['tags'].clear()
+                        type2_presager_ngram(topn = 100)
+                        if len(result['tags']) >= 10:
+                            result['tags'] = result['tags'][: 9 + 1]
+                        else:
+                            #print("{}번째 플레이리스트 ngram_100 실패".format(k))
+                            result['tags'].clear()
+                            type2_presager_ngram(topn=150)
+                            if len(result['tags']) >= 10:
+                                result['tags'] = result['tags'][: 9 + 1]
+                            else:
+                                #print("{}번째 플레이리스트 ngram_150 실패".format(k))
+                                result['tags'].clear()
+                                type2_presager(topn=4000)
+        #print("{}번째 태그 완료".format(k))
+        #투표
+        musics = {}
+        for tag in result['tags']:
+            for song in tag_music_freq[tag]:
+                if song not in musics:
+                    musics[song] = 1
+                else:
+                    musics[song] += 1
+        #print("{}번째 투표 완료".format(k))
+        #투표 결과 반영
+        answer_songs = []
+        type2_vote(frequency=10)
+        if len(answer_songs) >= 100:
+            type2_submit_answer()
+        else:
+            type2_vote(frequency=9)
+            if len(answer_songs) >= 100:
+                type2_submit_answer()
+            else:
+                type2_vote(frequency=8)
+                if len(answer_songs) >= 100:
+                    type2_submit_answer()
+                else:
+                    type2_vote(frequency=7)
+                    if len(answer_songs) >= 100:
+                        type2_submit_answer()
+                    else:
+                        type2_vote(frequency=6)
+                        if len(answer_songs) >= 100:
+                            type2_submit_answer()
+                        else:
+                            type2_vote(frequency=5)
+                            if len(answer_songs) >= 100:
+                                type2_submit_answer()
+                            else:
+                                type2_vote(frequency=4)
+                                if len(answer_songs) >= 100:
+                                    type2_submit_answer()
+
+                                else:
+                                    type2_vote(frequency=3)
+                                    if len(answer_songs) >= 100:
+                                        type2_submit_answer()
+                                    else:
+                                        type2_vote(frequency=2)
+                                        if len(answer_songs) >= 100:
+                                            type2_submit_answer()
+                                        else:
+                                            type2_vote(frequency=1)
+                                            type2_submit_answer()
+        #print("{}번째 개표 완료".format(k))
+    results.append(result)
+    #print("{}번째 진행했습니다.".format(k))
+    k+=1
+
+with open("data/[TEST]results_2_3.json", "w", encoding='UTF8') as f:
+    json.dump(results, f, ensure_ascii=False)
