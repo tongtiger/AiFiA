@@ -28,11 +28,14 @@ results = []
 
 def type2_presager(topn):
     predictions = fasttext.most_similar(positive=[word for word in data['plylst_title'].split(" ")], topn=topn)    
-    for prediction in predictions:
-        if prediction[0] in tag_list:
-            result['tags'].append(prediction[0])
-        else:
-            pass
+    z = 0
+    while z < 10:
+        for prediction in predictions:
+            if prediction[0] in tag_list:
+                result['tags'].append(prediction[0])
+                z+=1
+            else:
+                pass
 
 def type2_presager_ngram(topn):
     predictions = fasttext.most_similar(positive=[word for word in data['plylst_title'].split(" ")], topn=topn)
