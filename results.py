@@ -27,13 +27,13 @@ results = []
 #def type1_presager(data, ...):
 
 def type2_presager(topn):
-    predictions = fasttext.most_similar(positive=[word for word in data['plylst_title'].split(" ")], topn=topn)      
-    for prediction in predictions:      
-        if prediction[0] in tag_list:
-            result['tags'].append(prediction[0])
-            z+=1
-        else:
-            pass
+    predictions = fasttext.most_similar(positive=[word for word in data['plylst_title'].split(" ")], topn=topn)
+    while len(result['tags']) < 10:
+        for prediction in predictions:
+            if prediction[0] in tag_list:
+                result['tags'].append(prediction[0])
+            else:
+                pass
 
 def type2_presager_ngram(topn):
     predictions = fasttext.most_similar(positive=[word for word in data['plylst_title'].split(" ")], topn=topn)
@@ -89,27 +89,24 @@ def diff_2gram(sa, sb):
 
     return count / len(a), count/len(b)
 
-'''def type3_presager(topn):
-    pre_predictions = []
-    predictions = fasttext.most_similar(positive=[tag for tag in data['tags']], topn=topn)
+def type3_presager(topn):
+    pre_predictions.clear()
+    predictions = fasttext.most_similar(positive=[tag for tag in data['tags']] + [tag for tag in tags], topn=topn)
     for prediction in predictions:
         if prediction[0] in tag_list:
             pre_predictions.append(prediction[0])
         else:
             pass
-    song_tag_basket = []
-    for song in data['songs']:
-        if song not in song_tag_basket:
-            song_tag_basket.append(song)
-        else:
-            pass
-    for pre_prediction in pre_predictions:
-        if pre_prediction not in song_tag_basket:
-            song_tag_basket.remove(pre_prediction)
+
+def type4_presager(topn):
+    predictions = fasttext.most_similar(positive=[tag for tag in data['tags']] + [tag for tag in data['tags']], topn=topn)
+    for prediction in predictions:
+        if prediction[0] in tag_list:
+            result['tags'].append(prediction[0])
         else:
             pass
 
-def type4_presager(topn):
+'''def type4_presager(topn):
     predictions = fasttext.most_similar(positive=[tag for tag in data['tags']], topn=topn)
     for prediction in predictions:
         if prediction[0] in tag_list:
@@ -212,42 +209,188 @@ for data in tqdm(val_data):
 
     #type3 problem
     elif data['tags'] != [] and data['songs'] != [] and data['plylst_title'] = '':
-        pre_predictions = []
-        predictions = fasttext.most_similar(positive=[tag for tag in data['tags']], topn=100)
-        for prediction in predictions:
-            if prediction[0] in tag_list:
-                pre_predictions.append(prediction[0])
-            else:
-                pass
         song_tag_basket = []
         for song in data['songs']:
             if song not in song_tag_basket:
                 song_tag_basket.append(song)
             else:
                 pass
-        for pre_prediction in pre_predictions:
-            if pre_prediction not in song_tag_basket:
-                song_tag_basket.remove(pre_prediction)
+        tags_freq = {}
+        for song in song_tag_basket:
+            if song in music_tag:
+                for tag in music_tag[song]:
+                    if tag not in tags_freq:
+                        tags_freq[tag] = 1
+                    else:
+                        tags_freq[tag] += 1
             else:
                 pass
-        print("얘도 노래 불러와야함.")
-        print('Type3')
+        tags = []
+        for tag, freq in tags_freq.items():
+            if freq == 1:
+                pass
+            else:
+                tags.append(tag)
+
+        pre_predictions = []
+
+        type3_presager(topn=50)
+
+        if len(pre_predictions) >= 10:
+            for i in range(10):
+                result['tags'].append(pre_predictions[i])
+        else:
+            type3_presager(topn=100)
+            if len(pre_predictions) >= 10:
+                for i in range(10):
+                    result['tags'].append(pre_predictions[i])
+            else:
+                type3_presager(topn=500)
+                if len(pre_predictions) >= 10:
+                    for i in range(10):
+                        result['tags'].append(pre_predictions[i])
+                else:
+                    type3_presager(topn=1500)
+                    if len(pre_predictions) >= 10:
+                        for i in range(10):
+                            result['tags'].append(pre_predictions[i])
+                    else:
+                        type3_presager(topn=4000)
+
+        # 투표
+        musics = {}
+        for tag in result['tags']:
+            for song in tag_music_freq[tag]:
+                if song not in musics:
+                    musics[song] = 1
+                else:
+                    musics[song] += 1
+
+        # 투표 결과 반영
+        answer_songs = []
+        type2_vote(frequency=10)
+        if len(answer_songs) >= 100:
+            type2_submit_answer()
+        else:
+            type2_vote(frequency=9)
+            if len(answer_songs) >= 100:
+                type2_submit_answer()
+            else:
+                type2_vote(frequency=8)
+                if len(answer_songs) >= 100:
+                    type2_submit_answer()
+                else:
+                    type2_vote(frequency=7)
+                    if len(answer_songs) >= 100:
+                        type2_submit_answer()
+                    else:
+                        type2_vote(frequency=6)
+                        if len(answer_songs) >= 100:
+                            type2_submit_answer()
+                        else:
+                            type2_vote(frequency=5)
+                            if len(answer_songs) >= 100:
+                                type2_submit_answer()
+                            else:
+                                type2_vote(frequency=4)
+                                if len(answer_songs) >= 100:
+                                    type2_submit_answer()
+
+                                else:
+                                    type2_vote(frequency=3)
+                                    if len(answer_songs) >= 100:
+                                        type2_submit_answer()
+                                    else:
+                                        type2_vote(frequency=2)
+                                        if len(answer_songs) >= 100:
+                                            type2_submit_answer()
+                                        else:
+                                            type2_vote(frequency=1)
+                                            if len(answer_songs) >= 100:
+                                                type2_submit_answer()
+                                            else:
+                                                dfdf
+
 
     #type4 problem
     else:
-        predictions = fasttext.most_similar(positive=[tag for tag in data['tags']], topn = 100)
-        for prediction in predictions:
-            if prediction[0] in tag_list:
-                result['tags'].append(prediction[0])
+        type4_presager(topn=50)
+        if len(result['tags']) >= 10:
+            result['tags'] = result['tags'][:9 + 1]
+        else:
+            type4_presager(topn=100)
+            if len(result['tags']) >= 10:
+                result['tags'] = result['tags'][:9 + 1]
             else:
-                pass
-        print("노래 불러오고, 플레이리스트 제목도 고려해줄지 생각해봐야함")
-        print('Type4')
+                type4_presager(topn=500)
+                if len(result['tags']) >= 10:
+                    result['tags'] = result['tags'][:9 + 1]
+                else:
+                    type4_presager(topn=1500)
+                    if len(result['tags']) >= 10:
+                        result['tags'] = result['tags'][:9 + 1]
+                    else:
+                        type3_presager(topn=4000)
+                        if len(result['tags']) >= 10:
+                            result['tags'] = result['tags'][:9 + 1]
+                        else:
+                            ㅃ에엑
+
+        # 투표
+        musics = {}
+        for tag in result['tags']:
+            for song in tag_music_freq[tag]:
+                if song not in musics:
+                    musics[song] = 1
+                else:
+                    musics[song] += 1
+
+        # 투표 결과 반영
+        answer_songs = []
+        type2_vote(frequency=10)
+        if len(answer_songs) >= 100:
+            type2_submit_answer()
+        else:
+            type2_vote(frequency=9)
+            if len(answer_songs) >= 100:
+                type2_submit_answer()
+            else:
+                type2_vote(frequency=8)
+                if len(answer_songs) >= 100:
+                    type2_submit_answer()
+                else:
+                    type2_vote(frequency=7)
+                    if len(answer_songs) >= 100:
+                        type2_submit_answer()
+                    else:
+                        type2_vote(frequency=6)
+                        if len(answer_songs) >= 100:
+                            type2_submit_answer()
+                        else:
+                            type2_vote(frequency=5)
+                            if len(answer_songs) >= 100:
+                                type2_submit_answer()
+                            else:
+                                type2_vote(frequency=4)
+                                if len(answer_songs) >= 100:
+                                    type2_submit_answer()
+
+                                else:
+                                    type2_vote(frequency=3)
+                                    if len(answer_songs) >= 100:
+                                        type2_submit_answer()
+                                    else:
+                                        type2_vote(frequency=2)
+                                        if len(answer_songs) >= 100:
+                                            type2_submit_answer()
+                                        else:
+                                            type2_vote(frequency=1)
+                                            if len(answer_songs) >= 100:
+                                                type2_submit_answer()
+                                            else:
+                                                dfdf
 
     results.append(result)
-
-
-
 
 
 with open("data/results.json", "wb", encoding='UTF8') as f:
