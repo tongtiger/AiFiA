@@ -52,3 +52,53 @@ print("val.json에 대하여 진행 완료")
 
 with open("tag_song.dic", "wb") as f:
     pickle.dump(tag_song, f)
+    
+
+#데이터 프레임 제작 과정 1
+
+import random
+
+with open("tag_song.dic", "rb") as f:
+    tag_song = pickle.load(f)
+
+with open("tag_frequency_morethan_10.dic", "rb") as f:
+    tag_frequency_morethan_10 = pickle.load(f)
+
+list_tag_frequency_morethan_10 = list(tag_frequency_morethan_10.keys())
+
+def divide_list(l, n):
+    # 리스트 l의 길이가 n이면 계속 반복
+    for i in range(0, len(l), n):
+        yield l[i:i + n]
+
+# 한 리스트에 몇개씩 담을지 결정
+n = 20
+
+list_tag_frequency_morethan_10_splitted = list(divide_list(list_tag_frequency_morethan_10, n))
+
+random.shuffle(list_tag_frequency_morethan_10_splitted)
+
+semi_dataframe = {}
+
+i = 1
+
+for tags in tqdm(list_tag_frequency_morethan_10_splitted):
+    semi_dataframe[i] = {}
+    song_dic = {}
+    k = 0
+    for tag in tags:
+        for song in tag_song[tag]:
+            if song not in song_dic:
+                song_dic[song]= k
+                k += 1
+            else:
+                pass
+    for tag in tags:
+        semi_dataframe[i][tag] = [0 for i in range(len(song_dic))]
+        for song in tag_song[tag]:
+            semi_dataframe[i][tag][song_dic[song]] = 1
+    i += 1
+
+with open("semi_dataframe", "wb") as f:
+    pickle.dump(semi_dataframe, f)
+    
