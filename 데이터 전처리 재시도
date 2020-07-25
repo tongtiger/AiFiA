@@ -1,0 +1,54 @@
+# 태그 별로 출현하는 노래 정리 (tag_song.dic 파일)
+
+import json
+import pickle
+from tqdm import tqdm
+
+train_data = json.load(open("data/train.json", "rb"))
+
+test_data = json.load(open("data/test.json", "rb"))
+
+val_data = json.load(open("data/val.json", "rb"))
+
+tag_song = {}
+
+for data in tqdm(train_data):
+    for tag in data['tags']:
+        if tag not in tag_song:
+            tag_song[tag] = []
+            for song in data['songs']:
+                tag_song[tag].append(song)
+        else:
+            for song in data['songs']:
+                tag_song[tag].append(song)
+
+print("train.json에 대하여 진행 완료")
+
+for data in tqdm(test_data):
+    if data['songs'] != [] and data['tags'] != []:
+        for tag in data['tags']:
+            if tag not in tag_song:
+                tag_song[tag] = []
+                for song in data['songs']:
+                    tag_song[tag].append(song)
+            else:
+                for song in data['songs']:
+                    tag_song[tag].append(song)
+
+print("test.json에 대하여 진행 완료")
+
+for data in tqdm(val_data):
+    if data['songs'] != [] and data['tags'] != []:
+        for tag in data['tags']:
+            if tag not in tag_song:
+                tag_song[tag] = []
+                for song in data['songs']:
+                    tag_song[tag].append(song)
+            else:
+                for song in data['songs']:
+                    tag_song[tag].append(song)
+
+print("val.json에 대하여 진행 완료")
+
+with open("tag_song.dic", "wb") as f:
+    pickle.dump(tag_song, f)
