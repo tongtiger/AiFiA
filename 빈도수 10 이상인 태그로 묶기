@@ -1,0 +1,49 @@
+from gensim.models import FastText
+import pickle
+import json
+from tqdm import tqdm
+
+train_data = json.load(open("data/train.json", "rb"))
+
+#태그 빈도수 계산
+tag_frequency = {}
+
+for data in tqdm(train_data):
+    for tag in data['tags']:
+        if tag not in tag_frequency:
+            tag_frequency[tag] = 1
+        else:
+            tag_frequency[tag] += 1
+
+#빈도가 10 이상인 태그, 10 미만인 태그
+tag_frequency_morethan_10 = {}
+tag_frequency_lessthan_10 = []
+
+for tag, frequency in tqdm(tag_frequency.items()):
+    if frequency >= 10:
+        tag_frequency_morethan_10[tag] = []
+    else:
+        tag_frequency_lessthan_10.append(tag)
+
+
+
+#FastText 모델 로드
+fasttext = FastText.load("FastText.model")
+
+#빈도수가 낮은 태그와 가장 가까운 태그 찾는 함수
+def most_similar_to_given(tag, given_tags, FastText_model):
+    similarity = {}
+
+    for given_tag in given_tags:
+        similarity[given_tag] = FastText_model.similarity(tag, given_tag)
+    similarity_sorted = sorted(similarity.items(), key = lambda x : x[1], reverse=True)
+
+    return similarity_sorted[0][0]
+
+#빈도수 10 이상인 태그들과 연결
+for tag in tqdm(tag_frequency_lessthan_10):
+    prediction = most_similar_to_given(tag, tag_frequency_morethan_10, fasttext)
+    tag_frequency_morethan_10[prediction].append(tag)
+
+with open("tag_frequency_morethan_10.dic", "wb") as f:
+    pickle.dump(tag_frequency_morethan_10, f)
