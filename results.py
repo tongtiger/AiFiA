@@ -39,7 +39,10 @@ def type2_presager(topn):
     predictions = fasttext.most_similar(positive=[word for word in data['plylst_title'].split(" ")], topn=topn)
     for prediction in predictions:
         if prediction[0] in tag_list:
-            result['tags'].append(prediction[0])
+            if prediction[0] not in result['tags']:
+                result['tags'].append(prediction[0])
+            else:
+                pass
         else:
             pass
 
@@ -60,7 +63,10 @@ def type3_presager(topn):
     predictions = fasttext.most_similar(positive=[tag for tag in data['tags']] + [tag for tag in tags], topn=topn)
     for prediction in predictions:
         if prediction[0] in tag_list:
-            pre_predictions.append(prediction[0])
+            if prediction[0] not in pre_predictions:
+                pre_predictions.append(prediction[0])
+            else:
+                pass
         else:
             pass
 
@@ -68,7 +74,10 @@ def type4_presager(topn):
     predictions = fasttext.most_similar(positive=[tag for tag in data['tags']] + [tag for tag in data['tags']], topn=topn)
     for prediction in predictions:
         if prediction[0] in tag_list:
-            result['tags'].append(prediction[0])
+            if prediction[0] not in result['tags']:
+                result['tags'].append(prediction[0])
+            else:
+                pass
         else:
             pass
 
@@ -137,8 +146,11 @@ for data in tqdm(val_data):
             for prediction in predictions:
                 if k != 0:
                     if prediction[0] in tag_list:
-                        result['tags'].append(prediction[0])
-                        k -= 1
+                        if prediction[0] not in result['tags']:
+                            result['tags'].append(prediction[0])
+                            k -= 1
+                        else:
+                            pass
                     else:
                         pass
                 else:
@@ -234,7 +246,7 @@ for data in tqdm(val_data):
                             result['tags'] = result['tags'][: 9 + 1]
                         else:
                             result['tags'].clear()
-                            type2_presager(topn=6000)
+                            type2_presager(topn=7000)
                             result['tags'] = result['tags'][: 9 + 1]
 
 
@@ -342,7 +354,7 @@ for data in tqdm(val_data):
                         for i in range(10):
                             result['tags'].append(pre_predictions[i])
                     else:
-                        type3_presager(topn=6000)
+                        type3_presager(topn=7000)
                         for i in range(10):
                             result['tags'].append(pre_predictions[i])
 
@@ -424,7 +436,7 @@ for data in tqdm(val_data):
                         if len(result['tags']) >= 10:
                             result['tags'] = result['tags'][:9 + 1]
                         else:
-                            type4_presager(topn = 6000)
+                            type4_presager(topn = 7000)
                             result['tags'] = result['tags'][:9+1]
 
         # 투표
