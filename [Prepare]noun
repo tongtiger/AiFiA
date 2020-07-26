@@ -15,7 +15,7 @@ def type2_presager(topn):
   tag_noun.clear()
   for prediction in predictions:
     if prediction[0] in tag_list:
-      same_noun = [x for x in noun(prediction[0] if x in tag_noun)]
+      same_noun = [x for x in noun(prediction[0]) if x in tag_noun]
       if not same_noun :
         result['tags'].append(prediction[0])
         tag_noun.append(noun(prediction[0]))
