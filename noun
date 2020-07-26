@@ -1,0 +1,22 @@
+from khaiii import KhaiiiApi
+api = KhaiiiApi()
+
+tag_noun=[]
+
+def noun(sentence):
+  noun =[]
+  for word in api.analyze(sentence):
+    for morph.tag in['NNG','NNP']:
+      if morph.lex not in [‘음악’, ‘곡’, ‘노래’]: noun.append(morph.lex)
+  return noun
+  
+def type2_presager(topn):
+  predictions =fasttext.most_similar(positive=[word for word in data['plylst_title'].split(" ")], topn = topn)
+  tag_noun.clear()
+  for prediction in predictions:
+    if prediction[0] in tag_list:
+      same_noun = [x for x in noun(prediction[0] if x in tag_noun)]
+      if not same_noun :
+        result['tags'].append(prediction[0])
+        tag_noun.append(noun(prediction[0]))
+    
