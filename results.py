@@ -2,6 +2,7 @@ import json
 from gensim.models import FastText
 import pickle
 from tqdm import tqdm
+import random
 
 #필요한 자료 및 모델
 val_data = json.load(open("data/val.json", "rb"))   #맞춰야 하는 데이터
@@ -86,6 +87,8 @@ for data in tqdm(val_data):
                         tags[tag] = 1
                     else:
                         tags[tag] += 1
+            else:
+                pass
 
         answer_tags = []
         type1_vote(frequency=10)
@@ -128,6 +131,25 @@ for data in tqdm(val_data):
                                             type1_vote(frequency=1)
                                             type1_submit_answer()
 
+        if 0 < len(result['tags']) < 10:
+            k = 10 - len(result['tags'])
+            predictions = fasttext.most_similar(positive=[tag for tag in result['tags']], topn = 150)
+            for prediction in predictions:
+                if k != 0:
+                    if prediction[0] in tag_list:
+                        result['tags'].append(prediction[0])
+                        k -= 1
+                    else:
+                        pass
+                else:
+                    pass
+            print(len(result['tags']))
+        elif len(result['tags']) == 0:
+            for i in range(10):
+                result['tags'].append(tag_list[i])
+        else:
+            pass
+
         # 투표
         musics = {}
         for tag in result['tags']:
@@ -178,6 +200,12 @@ for data in tqdm(val_data):
                                         else:
                                             type2_vote(frequency=1)
                                             type2_submit_answer()
+
+        if len(result['songs']) == 100 and len(result['tags']) == 10:
+            pass
+        else:
+            print(len(result['songs']), ",", len(result['tags']))
+            print("type1")
 
     #type2 problem
     elif data['tags'] == data['songs'] == []:
@@ -206,7 +234,7 @@ for data in tqdm(val_data):
                             result['tags'] = result['tags'][: 9 + 1]
                         else:
                             result['tags'].clear()
-                            type2_presager(topn=5000)
+                            type2_presager(topn=6000)
                             result['tags'] = result['tags'][: 9 + 1]
 
 
@@ -260,6 +288,11 @@ for data in tqdm(val_data):
                                         else:
                                             type2_vote(frequency=1)
                                             type2_submit_answer()
+        if len(result['songs']) == 100 and len(result['tags']) == 10:
+            pass
+        else:
+            print(len(result['songs']), ",", len(result['tags']))
+            print("type2")
 
     #type3 problem
     elif data['tags'] != [] and data['songs'] != [] and data['plylst_title'] == '':
@@ -309,7 +342,9 @@ for data in tqdm(val_data):
                         for i in range(10):
                             result['tags'].append(pre_predictions[i])
                     else:
-                        type3_presager(topn=5000)
+                        type3_presager(topn=6000)
+                        for i in range(10):
+                            result['tags'].append(pre_predictions[i])
 
         # 투표
         musics = {}
@@ -360,11 +395,12 @@ for data in tqdm(val_data):
                                             type2_submit_answer()
                                         else:
                                             type2_vote(frequency=1)
-                                            if len(answer_songs) >= 100:
-                                                type2_submit_answer()
-                                            else:
-                                                dfdf
-
+                                            type2_submit_answer()
+        if len(result['songs']) == 100 and len(result['tags']) == 10:
+            pass
+        else:
+            print(len(result['songs']), ",", len(result['tags']))
+            print("type3")
 
     #type4 problem
     else:
@@ -384,11 +420,12 @@ for data in tqdm(val_data):
                     if len(result['tags']) >= 10:
                         result['tags'] = result['tags'][:9 + 1]
                     else:
-                        type3_presager(topn=4000)
+                        type4_presager(topn=4000)
                         if len(result['tags']) >= 10:
                             result['tags'] = result['tags'][:9 + 1]
                         else:
-                            ㅃ에엑
+                            type4_presager(topn = 6000)
+                            result['tags'] = result['tags'][:9+1]
 
         # 투표
         musics = {}
@@ -439,14 +476,17 @@ for data in tqdm(val_data):
                                             type2_submit_answer()
                                         else:
                                             type2_vote(frequency=1)
-                                            if len(answer_songs) >= 100:
-                                                type2_submit_answer()
-                                            else:
-                                                dfdf
+                                            type2_submit_answer()
+
+        if len(result['songs']) == 100 and len(result['tags']) == 10:
+            pass
+        else:
+            print(len(result['songs']), ",", len(result['tags']))
+            print("type4")
 
     results.append(result)
 
 
-with open("data/results.json", "w", encoding='UTF8') as f:
+with open("results.json", "w", encoding='UTF8') as f:
     json.dump(results, f, ensure_ascii=False)
 
